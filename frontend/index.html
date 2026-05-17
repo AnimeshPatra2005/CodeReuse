@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeReuse AI — Context-Aware Code Generation</title>
+    <meta name="description" content="Context-aware AI code generation powered by IBM Granite. Enforces code reuse through AST analysis and dependency graphs.">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- ===== LANDING PAGE ===== -->
+    <div id="landing-page" class="page active">
+        <div class="bg-grid"></div>
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+
+        <nav class="navbar">
+            <div class="nav-logo">
+                <div class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M4 14L10 8L16 14L10 20L4 14Z" fill="url(#lg1)"/>
+                        <path d="M12 14L18 8L24 14L18 20L12 14Z" fill="url(#lg2)" opacity="0.7"/>
+                        <defs>
+                            <linearGradient id="lg1" x1="4" y1="8" x2="16" y2="20" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#6366f1"/>
+                                <stop offset="1" stop-color="#8b5cf6"/>
+                            </linearGradient>
+                            <linearGradient id="lg2" x1="12" y1="8" x2="24" y2="20" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#a78bfa"/>
+                                <stop offset="1" stop-color="#c084fc"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">CodeReuse <span class="logo-ai">AI</span></span>
+            </div>
+            <div id="api-status-badge" class="status-badge offline">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+        </nav>
+
+        <main class="landing-hero">
+            <div class="hero-chip">
+                <span class="chip-dot"></span>
+                Powered by IBM Granite · Qwen 2.5 Coder
+            </div>
+
+            <h1 class="hero-title">
+                Generate Code That<br>
+                <span class="gradient-text">Actually Reuses</span><br>
+                Your Codebase
+            </h1>
+
+            <p class="hero-subtitle">
+                Drop in any GitHub repo. Our agent maps every function, builds a dependency graph,
+                and enforces real code reuse — not just pretty suggestions.
+            </p>
+
+            <div class="hero-input-card">
+                <div class="input-row">
+                    <div class="input-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                        </svg>
+                    </div>
+                    <input
+                        type="text"
+                        id="github-url"
+                        placeholder="https://github.com/your-org/your-repo"
+                        class="hero-input"
+                        autocomplete="off"
+                    >
+                    <button id="analyze-btn" class="cta-btn">
+                        <span>Analyze</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M5 12h14M12 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+                <p class="input-hint">Or use a local path like <code>./my-project</code> if the backend is local</p>
+            </div>
+
+            <div class="features-row">
+                <div class="feature-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    AST Analysis
+                </div>
+                <div class="feature-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+                    Dependency Graph
+                </div>
+                <div class="feature-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    Live Metrics
+                </div>
+                <div class="feature-pill">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Reuse Enforcement
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== PROCESSING PAGE ===== -->
+    <div id="processing-page" class="page">
+        <div class="bg-grid"></div>
+        <div class="bg-orb orb-1"></div>
+        <div class="bg-orb orb-2"></div>
+
+        <nav class="navbar">
+            <div class="nav-logo">
+                <div class="logo-mark">
+                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                        <path d="M4 14L10 8L16 14L10 20L4 14Z" fill="url(#lg1p)"/>
+                        <path d="M12 14L18 8L24 14L18 20L12 14Z" fill="url(#lg2p)" opacity="0.7"/>
+                        <defs>
+                            <linearGradient id="lg1p" x1="4" y1="8" x2="16" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+                            <linearGradient id="lg2p" x1="12" y1="8" x2="24" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#c084fc"/></linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <span class="logo-text">CodeReuse <span class="logo-ai">AI</span></span>
+            </div>
+        </nav>
+
+        <div class="processing-layout">
+            <div class="processing-card">
+                <div class="processing-title">
+                    <div class="pulse-ring"></div>
+                    <h2>Analyzing Repository</h2>
+                </div>
+                <p class="repo-url-display" id="repo-url-display"></p>
+
+                <div class="steps-list">
+                    <div class="step-item" data-step="clone">
+                        <div class="step-indicator">
+                            <div class="step-spinner"></div>
+                            <div class="step-check">✓</div>
+                            <div class="step-num">1</div>
+                        </div>
+                        <div class="step-body">
+                            <h4>Cloning Repository</h4>
+                            <p class="step-desc" id="step-clone-desc">Fetching code from remote...</p>
+                        </div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step-item" data-step="parse">
+                        <div class="step-indicator">
+                            <div class="step-spinner"></div>
+                            <div class="step-check">✓</div>
+                            <div class="step-num">2</div>
+                        </div>
+                        <div class="step-body">
+                            <h4>Parsing AST</h4>
+                            <p class="step-desc" id="step-parse-desc">Analyzing code structure...</p>
+                        </div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step-item" data-step="graph">
+                        <div class="step-indicator">
+                            <div class="step-spinner"></div>
+                            <div class="step-check">✓</div>
+                            <div class="step-num">3</div>
+                        </div>
+                        <div class="step-body">
+                            <h4>Building Dependency Graph</h4>
+                            <p class="step-desc" id="step-graph-desc">Mapping code relationships...</p>
+                        </div>
+                    </div>
+                    <div class="step-connector"></div>
+                    <div class="step-item" data-step="embed">
+                        <div class="step-indicator">
+                            <div class="step-spinner"></div>
+                            <div class="step-check">✓</div>
+                            <div class="step-num">4</div>
+                        </div>
+                        <div class="step-body">
+                            <h4>Creating Vector Embeddings</h4>
+                            <p class="step-desc" id="step-embed-desc">Generating semantic representations...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="processing-stats-row">
+                    <div class="p-stat">
+                        <span class="p-stat-val" id="files-count">0</span>
+                        <span class="p-stat-label">Files</span>
+                    </div>
+                    <div class="p-stat">
+                        <span class="p-stat-val" id="functions-count">0</span>
+                        <span class="p-stat-label">Functions</span>
+                    </div>
+                    <div class="p-stat">
+                        <span class="p-stat-val" id="imports-count">0</span>
+                        <span class="p-stat-label">Imports</span>
+                    </div>
+                </div>
+
+                <div id="error-box" class="error-box hidden">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    <span id="error-msg"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== GRAPH PAGE ===== -->
+    <div id="graph-page" class="page">
+        <div class="graph-page-layout">
+            <header class="graph-topbar">
+                <div class="nav-logo">
+                    <div class="logo-mark small">
+                        <svg width="22" height="22" viewBox="0 0 28 28" fill="none">
+                            <path d="M4 14L10 8L16 14L10 20L4 14Z" fill="url(#lg1g)"/>
+                            <path d="M12 14L18 8L24 14L18 20L12 14Z" fill="url(#lg2g)" opacity="0.7"/>
+                            <defs>
+                                <linearGradient id="lg1g" x1="4" y1="8" x2="16" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+                                <linearGradient id="lg2g" x1="12" y1="8" x2="24" y2="20" gradientUnits="userSpaceOnUse"><stop stop-color="#a78bfa"/><stop offset="1" stop-color="#c084fc"/></linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <span class="logo-text sm">Dependency Graph</span>
+                </div>
+                <div class="graph-stats-bar">
+                    <div class="gs-item"><span id="graph-nodes">0</span> nodes</div>
+                    <div class="gs-sep">·</div>
+                    <div class="gs-item"><span id="graph-edges">0</span> edges</div>
+                    <div class="gs-sep">·</div>
+                    <div class="gs-item">depth <span id="graph-depth">0</span></div>
+                </div>
+                <button id="proceed-coding-btn" class="cta-btn sm">
+                    Go to IDE
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </button>
+            </header>
+
+            <div class="graph-body">
+                <div id="graph-canvas"></div>
+                <div class="graph-legend-card">
+                    <h5>Legend</h5>
+                    <div class="legend-row"><span class="lc" style="background:#6366f1"></span>Services</div>
+                    <div class="legend-row"><span class="lc" style="background:#ec4899"></span>Utils</div>
+                    <div class="legend-row"><span class="lc" style="background:#06b6d4"></span>Models</div>
+                    <div class="legend-row"><span class="lc" style="background:#10b981"></span>Functions</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== IDE PAGE ===== -->
+    <div id="ide-page" class="page">
+        <div class="ide-layout">
+
+            <!-- Left: Agent Panel -->
+            <aside class="agent-sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        <div class="ai-pulse"></div>
+                        <span>AI Agent</span>
+                    </div>
+                    <div id="ws-badge" class="ws-badge disconnected">WS</div>
+                </div>
+
+                <div class="agent-input-zone">
+                    <label class="input-label">Target File</label>
+                    <select id="target-file-select" class="target-select">
+                        <option value="">Select a file...</option>
+                    </select>
+                    <br>
+                    <label class="input-label">What do you want to build?</label>
+                    <textarea
+                        id="query-input"
+                        placeholder="e.g. Add a function that validates and normalizes email addresses before user creation..."
+                        rows="5"
+                    ></textarea>
+                    <button id="generate-btn" class="gen-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                        Generate Code
+                    </button>
+                </div>
+
+                <div class="log-zone">
+                    <div class="log-zone-header">
+                        <span>Processing Log</span>
+                        <button id="clear-log-btn" class="ghost-btn">Clear</button>
+                    </div>
+                    <div id="log-content" class="log-scroll">
+                        <div class="log-empty">Logs will appear here...</div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Right: Code + Metrics -->
+            <main class="code-main">
+                <div class="code-topbar">
+                    <div class="file-tab active">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        generated.py
+                    </div>
+                    <div class="code-actions">
+                        <span id="iteration-badge" class="iter-badge">Iteration #0</span>
+                        <button id="copy-code-btn" class="ghost-btn">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-editor-area">
+                    <div id="code-content" class="code-body">
+                        <div class="code-placeholder">
+                            <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.3">
+                                <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                            </svg>
+                            <p>No code generated yet</p>
+                            <span>Enter a query to start generating context-aware code</span>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+
+            <!-- Right: Beautiful Metrics -->
+            <aside class="metrics-sidebar">
+                <div class="metrics-sidebar-header">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                    Code Quality Metrics
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card-header">
+                        <h4>Namespace Reuse Score</h4>
+                        <span id="namespace-score" class="mc-val">0%</span>
+                    </div>
+                    <div class="metric-track lg">
+                        <div id="namespace-progress" class="metric-fill lg"></div>
+                    </div>
+                    <div class="mc-details">
+                        <div class="mc-stat-row"><span>Functions Called:</span> <span id="total-functions">0</span></div>
+                        <div class="mc-stat-row"><span>Reused from Repo:</span> <span id="reused-functions">0</span></div>
+                        <div class="mc-stat-row"><span>Status:</span> <span class="mc-status pass">✅ PASS (Threshold: 40%)</span></div>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-card-header">
+                        <h4>Structural Similarity</h4>
+                        <span id="similarity-score" class="mc-val safe">0%</span>
+                    </div>
+                    <div class="metric-track lg">
+                        <div id="similarity-progress" class="metric-fill safe lg"></div>
+                    </div>
+                    <div class="mc-details">
+                        <div class="mc-stat-row"><span id="similarity-status">✓ No plagiarism detected</span></div>
+                        <div class="mc-stat-row"><span>Status:</span> <span class="mc-status pass">✅ PASS (Threshold: &lt;85%)</span></div>
+                    </div>
+                </div>
+
+                <div class="metric-card highlight-card">
+                    <div class="mc-overall-header">
+                        <h4>Overall Quality</h4>
+                    </div>
+                    <div class="mc-circle-wrap">
+                        <svg class="quality-ring lg" width="120" height="120" viewBox="0 0 120 120">
+                            <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="12"/>
+                            <circle id="quality-ring-fill" cx="60" cy="60" r="50" fill="none" stroke="url(#qgrad)" stroke-width="12"
+                                stroke-dasharray="314.15" stroke-dashoffset="314.15" stroke-linecap="round"
+                                transform="rotate(-90 60 60)"/>
+                            <defs>
+                                <linearGradient id="qgrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stop-color="#6366f1"/>
+                                    <stop offset="100%" stop-color="#8b5cf6"/>
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                        <div class="mc-circle-val">
+                            <span id="quality-score">0%</span>
+                        </div>
+                    </div>
+                    <div class="mc-overall-status" id="quality-status">Waiting...</div>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
