@@ -62,11 +62,10 @@ body {
 .orb-1 { width: 500px; height: 500px; background: radial-gradient(#6366f1, transparent); top: -120px; right: -100px; }
 .orb-2 { width: 400px; height: 400px; background: radial-gradient(#ec4899, transparent); bottom: -80px; left: -80px; }
 
-/* ===== Navbar ===== */
 .navbar {
   position: relative; z-index: 10;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 20px 40px;
+  padding: 20px max(40px, calc((100vw - 1200px) / 2));
 }
 
 .nav-logo { display: flex; align-items: center; gap: 10px; }
@@ -299,7 +298,7 @@ body {
 
 .graph-topbar {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 28px; border-bottom: 1px solid var(--border);
+  padding: 14px max(28px, calc((100vw - 1200px) / 2)); border-bottom: 1px solid var(--border);
   background: rgba(10,10,20,0.8); backdrop-filter: blur(12px);
   flex-shrink: 0;
 }

@@ -197,6 +197,20 @@ function buildGraphData(apiData) {
     const links = [];
     const nodeIds  = new Set();
     const linkSet  = new Set();
+    
+    const dirMap = {};
+    let groupCounter = 1;
+
+    function getGroup(filePath) {
+        const parts = filePath.split(/[/\\]/);
+        parts.pop();
+        const dir = parts.join('/');
+        if (!dirMap[dir]) {
+            dirMap[dir] = groupCounter;
+            groupCounter = groupCounter > 6 ? 1 : groupCounter + 1;
+        }
+        return dirMap[dir];
+    }
 
     function addNode(id, label, group) {
         if (!nodeIds.has(id)) {
@@ -214,16 +228,32 @@ function buildGraphData(apiData) {
         }
     }
 
-    // Only show FILE → FILE import relationships (no function nodes)
-    for (const [file, imports] of Object.entries(apiData.import_graph)) {
+    const allFiles = Object.keys(apiData.import_graph);
+
+    // Add all files first
+    for (const file of allFiles) {
         const fileLabel = file.split(/[/\\]/).pop();
-        addNode(file, fileLabel, 1);
+        addNode(file, fileLabel, getGroup(file));
+    }
+
+    // Now resolve imports and add links
+    for (const [file, imports] of Object.entries(apiData.import_graph)) {
         for (const imp of imports) {
-            // Only include files that are actually in the repo (not stdlib)
-            if (imp.endsWith('.py') || apiData.import_graph[imp] !== undefined) {
-                const impLabel = imp.split(/[/\\]/).pop();
-                addNode(imp, impLabel, 2);
-                addLink(file, imp);
+            let targetFile = null;
+            
+            if (allFiles.includes(imp)) {
+                targetFile = imp;
+            } else {
+                const normalizedImp = imp.replace(/\./g, '/');
+                targetFile = allFiles.find(k => {
+                    const normalizedKey = k.replace(/\\/g, '/');
+                    return normalizedKey.endsWith(normalizedImp + '.py') || 
+                           normalizedKey.endsWith(normalizedImp + '/__init__.py');
+                });
+            }
+
+            if (targetFile) {
+                addLink(file, targetFile);
             }
         }
     }
@@ -242,10 +272,19 @@ function updateGraphStats() {
 function renderGraph(data) {
     const container = document.getElementById('graph-canvas');
     container.innerHTML = '';
-    const w = container.clientWidth  || 900;
-    const h = container.clientHeight || 550;
+    const bounds = container.getBoundingClientRect();
+    const w = bounds.width > 0 ? bounds.width : window.innerWidth;
+    const h = bounds.height > 0 ? bounds.height : window.innerHeight;
 
-    const colorMap = { 1: '#6366f1', 2: '#ec4899', 3: '#06b6d4', 4: '#10b981' };
+    const colorMap = { 
+        1: '#6366f1', // indigo
+        2: '#ec4899', // pink
+        3: '#06b6d4', // cyan
+        4: '#10b981', // green
+        5: '#f59e0b', // amber
+        6: '#8b5cf6', // purple
+        7: '#ef4444'  // red
+    };
 
     const svg = d3.select('#graph-canvas')
         .append('svg').attr('width', w).attr('height', h);
