@@ -15,7 +15,8 @@ logger = get_logger(__name__)
 class DependencyGraphBuilder:
     """Build and manage dependency graphs for code analysis."""
     
-    def __init__(self):
+    def __init__(self, repository_path: str = ""):
+        self.repository_path = Path(repository_path).resolve() if repository_path else Path.cwd()
         self.import_graph: Dict[str, List[str]] = defaultdict(list)
         self.call_graph: Dict[str, List[str]] = defaultdict(list)
         self.function_registry: Dict[str, str] = {}  # function_name -> file_path
@@ -108,36 +109,36 @@ class DependencyGraphBuilder:
         Returns:
             Resolved file path or None
         """
-        # This is a simplified resolution
-        # In production, you'd want more sophisticated module resolution
-        
         # Check if it's a relative import
         if module.startswith('.'):
             base_dir = Path(importing_file).parent
-            # Handle relative imports
             parts = module.lstrip('.').split('.')
             potential_path = base_dir / '/'.join(parts)
             
-            # Try .py extension
             if potential_path.with_suffix('.py').exists():
                 return str(potential_path.with_suffix('.py'))
-            
-            # Try as package
             if (potential_path / '__init__.py').exists():
                 return str(potential_path / '__init__.py')
         
-        # Try to resolve absolute import
-        # Convert module path to file path
+        # Resolve absolute import relative to REPOSITORY ROOT (not CWD)
         parts = module.split('.')
-        potential_path = Path('/'.join(parts))
+        relative_path = Path('/'.join(parts))
         
-        # Try .py extension
-        if potential_path.with_suffix('.py').exists():
-            return str(potential_path.with_suffix('.py'))
+        # Try relative to repo root
+        repo_based = self.repository_path / relative_path
+        if repo_based.with_suffix('.py').exists():
+            return str(repo_based.with_suffix('.py'))
+        if (repo_based / '__init__.py').exists():
+            return str(repo_based / '__init__.py')
         
-        # Try as package
-        if (potential_path / '__init__.py').exists():
-            return str(potential_path / '__init__.py')
+        # Also try matching against known files in file_functions / import_graph
+        # by checking if any known file path ends with the module path
+        module_as_path = '/'.join(parts) + '.py'
+        all_known = set(self.file_functions.keys()) | set(self.import_graph.keys())
+        for known_file in all_known:
+            normalized = known_file.replace('\\', '/')
+            if normalized.endswith(module_as_path):
+                return known_file
         
         return None
     

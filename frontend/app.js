@@ -228,9 +228,23 @@ function buildGraphData(apiData) {
         }
     }
 
-    const allFiles = Object.keys(apiData.import_graph);
+    // Collect ALL known files: importers + imported targets + files with functions
+    const fileSet = new Set([
+        ...Object.keys(apiData.import_graph),
+        ...(apiData.file_functions ? Object.keys(apiData.file_functions) : [])
+    ]);
+    // Also add any resolved import targets that are actual file paths
+    for (const imports of Object.values(apiData.import_graph)) {
+        for (const imp of imports) {
+            // If it looks like a file path (contains / or \), add it
+            if (imp.includes('/') || imp.includes('\\')) {
+                fileSet.add(imp);
+            }
+        }
+    }
+    const allFiles = [...fileSet];
 
-    // Add all files first
+    // Add all files as nodes first
     for (const file of allFiles) {
         const fileLabel = file.split(/[/\\]/).pop();
         addNode(file, fileLabel, getGroup(file));

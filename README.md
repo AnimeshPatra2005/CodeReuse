@@ -2,6 +2,8 @@
 
 A production-ready AI-powered code generation system that **enforces deterministic code reuse** through AST analysis, vector similarity search, and structural verification. Prevents code duplication by ensuring AI agents leverage existing utilities instead of creating redundant implementations.
 
+**Made using IBM Bob**
+
 ## 🎯 Core Innovation
 
 **Dual-phase verification** (namespace checking + structural similarity) with rolling subtask context management ensures generated code reuses existing functions instead of duplicating logic.
@@ -12,7 +14,7 @@ A production-ready AI-powered code generation system that **enforces determinist
 - **📊 Code Reuse Enforcement**: Minimum 40% reuse score validation
 - **🚫 Plagiarism Detection**: AST-based structural similarity checking (85% threshold)
 - **🔄 Dependency Tracking**: Import/call graph analysis with breaking change detection
-- **🤖 Intelligent Task Decomposition**: Gemini-powered subtask breakdown (2-5 subtasks)
+- **🤖 Intelligent Task Decomposition**: LLM-powered subtask breakdown (2-5 subtasks)
 - **💡 Explanatory Feedback**: Detailed failure explanations guide regeneration
 - **🔁 Automatic Retry**: Up to 3 retries with explanations
 - **🎭 Dual Modes**: Legacy (enforces reuse) vs Greenfield (no validation)
@@ -27,7 +29,7 @@ User Request → Task Decomposition → Subtasks
 For each subtask:
   Global Context + Local Context (similar functions)
                               ↓
-  LLM Code Generation (Gemini)
+  LLM Code Generation (Qwen)
                               ↓
   Metric Validation (Legacy Mode)
                               ↓
@@ -42,7 +44,7 @@ Final Code → Dependency Validation → Output
 
 - Python 3.10+
 - Node.js 18+ (for frontend)
-- Gemini API Key
+- Hugging Face API Token
 
 ### Backend Setup
 
@@ -60,7 +62,7 @@ pip install -r requirements.txt
 
 # Setup environment
 cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
+# Edit .env and add your HUGGINGFACE_API_TOKEN
 ```
 
 ### Frontend Setup (Optional)
@@ -186,7 +188,7 @@ Edit `config.yaml` to customize:
 agent:
   mode: "legacy"  # or "greenfield"
   llm:
-    model: "gemini-1.5-flash"
+    model: "Qwen/Qwen2.5-Coder-32B-Instruct"
     temperature: 0.2
 
 metrics:
@@ -234,7 +236,7 @@ pytest --cov=src --cov-report=html
 pytest tests/unit/test_ast_parser.py
 ```
 
-## 🎨 Frontend (React + Tailwind)
+## 🎨 Frontend
 
 The frontend provides:
 
@@ -272,9 +274,9 @@ npm run build  # Production build
 
 ### Common Issues
 
-1. **"GEMINI_API_KEY not set"**
+1. **"HUGGINGFACE_API_TOKEN not set"**
    - Copy `.env.example` to `.env`
-   - Add your Gemini API key
+   - Add your Hugging Face API token
 
 2. **"Repository not indexed"**
    - Run `python cli.py index ./path/to/repo` first
@@ -303,7 +305,7 @@ MIT License - see LICENSE file for details
 
 - **ChromaDB** for vector database
 - **Jina AI** for code embeddings
-- **Google Gemini** for LLM capabilities
+- **Qwen (Alibaba)** for LLM capabilities
 - **FastAPI** for API framework
 
 ## 📧 Contact
@@ -312,4 +314,3 @@ For questions or support, please open an issue on GitHub.
 
 ---
 
-**Built for hackathons, ready for production** 🚀

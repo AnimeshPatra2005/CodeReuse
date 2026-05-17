@@ -163,13 +163,27 @@ async def index_repository(
             already_cloned = os.path.exists(local_repo_path) and os.path.exists(os.path.join(local_repo_path, '.git'))
             
             if already_cloned:
-                logger.info(f"Using cached clone: {local_repo_path}")
+                logger.info(f"Pulling latest changes for cached clone: {local_repo_path}")
                 await manager.broadcast({
                     "type": "log",
                     "level": "info",
-                    "message": f"Using cached clone of {repo_name} (already on disk)",
+                    "message": f"Updating cached clone of {repo_name} (git pull)...",
                     "category": "clone"
                 })
+                try:
+                    pull_result = subprocess.run(
+                        ["git", "pull", "--ff-only"],
+                        capture_output=True, text=True, timeout=60,
+                        cwd=local_repo_path
+                    )
+                    if pull_result.returncode != 0:
+                        logger.warning(f"git pull failed, re-cloning: {pull_result.stderr}")
+                        shutil.rmtree(local_repo_path, ignore_errors=True)
+                        already_cloned = False
+                except Exception as pull_err:
+                    logger.warning(f"git pull error, re-cloning: {pull_err}")
+                    shutil.rmtree(local_repo_path, ignore_errors=True)
+                    already_cloned = False
             else:
                 # Remove any partial/empty directory before cloning
                 if os.path.exists(local_repo_path):

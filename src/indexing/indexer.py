@@ -44,7 +44,7 @@ class Indexer:
         
         # Initialize components
         self.parser = ASTParser()
-        self.graph_builder = DependencyGraphBuilder()
+        self.graph_builder = DependencyGraphBuilder(repository_path=str(self.repository_path))
         
         # Initialize vector DB
         vector_config = config.indexing.vector_db
