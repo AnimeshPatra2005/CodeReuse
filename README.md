@@ -2,7 +2,7 @@
 
 A production-ready AI-powered code generation system that **enforces deterministic code reuse** through AST analysis, vector similarity search, and structural verification. Prevents code duplication by ensuring AI agents leverage existing utilities instead of creating redundant implementations.
 
-**Made using IBM Bob**
+
 
 ## 🎯 Core Innovation
 

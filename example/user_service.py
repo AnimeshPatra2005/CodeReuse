@@ -71,5 +71,3 @@ class UserService:
             del self.users[username]
             return True
         return False
-
-# Made with Bob
