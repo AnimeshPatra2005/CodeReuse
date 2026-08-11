@@ -1,6 +1,6 @@
 """
 Agent Orchestrator - Main workflow coordinator for code generation.
-Uses IBM Granite models via Hugging Face for code generation.
+Manages subtask decomposition, context building, LLM generation, and validation.
 """
 
 import time
@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 
 
 class Agent:
-    """Main agent orchestrator for context-aware code generation with IBM Granite."""
+    """Main agent orchestrator for context-aware code generation."""
     
     def __init__(
         self,
@@ -50,7 +50,7 @@ class Agent:
         self.context_builder = ContextBuilder(vector_db)
         self.decomposer = SubtaskDecomposer(api_key=api_key)
         
-        # Initialize IBM Granite client
+        # Initialize LLM client
         self.granite_client = GraniteClient(api_token=api_key)
         
         # Get system prompt from config
@@ -205,7 +205,7 @@ class Agent:
         prompt = self._build_generation_prompt(subtask, context, request)
         
         try:
-            # Generate code with LLM (Granite)
+            # Generate code with LLM
             response_text = self.granite_client.generate_with_retry(
                 prompt=prompt,
                 temperature=self.agent_config.llm.temperature,
