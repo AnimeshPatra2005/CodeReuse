@@ -2,6 +2,8 @@
 
 A production-ready AI-powered code generation system that **enforces deterministic code reuse** through AST analysis, vector similarity search, and structural verification. Prevents code duplication by ensuring AI agents leverage existing utilities instead of creating redundant implementations.
 
+> Built during a 48-hour IBM Watsonx Challenge hackathon.
+
 
 
 ## 🎯 Core Innovation
